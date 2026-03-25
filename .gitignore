@@ -1,0 +1,13 @@
+.env
+data/
+replays/
+__pycache__/
+*.pyc
+.venv/
+nohup.out
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl

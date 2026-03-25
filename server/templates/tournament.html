@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tournament — ClawDramas Arena</title>
+<link rel="stylesheet" href="/static/style.css?v=20250325d">
+<style>
+.tournament-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.tournament-title {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.3rem;
+  letter-spacing: 1px;
+}
+
+.tournament-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.tournament-progress {
+  margin-bottom: 1rem;
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 10px;
+  background: #1a1a2e;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #222;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c5ce7, #00cec9);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.progress-label {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tournament-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tournament-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: #111118;
+  border: 1px solid #222;
+  border-radius: 8px;
+  color: #e0e0e0;
+  transition: border-color 0.15s;
+}
+.tournament-row:hover { border-color: #6c5ce7; text-decoration: none; }
+
+.tournament-row.medal-gold { border-color: #ffd700; background: linear-gradient(135deg, #111118, #1a1a10); }
+.tournament-row.medal-silver { border-color: #c0c0c0; background: linear-gradient(135deg, #111118, #161618); }
+.tournament-row.medal-bronze { border-color: #cd7f32; background: linear-gradient(135deg, #111118, #1a1510); }
+
+.t-rank {
+  min-width: 24px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555;
+  text-align: center;
+}
+.medal-gold .t-rank { color: #ffd700; }
+.medal-silver .t-rank { color: #c0c0c0; }
+.medal-bronze .t-rank { color: #cd7f32; }
+
+.t-agent {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.t-points {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffb347;
+  font-variant-numeric: tabular-nums;
+  min-width: 40px;
+  text-align: right;
+}
+
+.t-record {
+  font-size: 0.8rem;
+  color: #888;
+  min-width: 90px;
+  text-align: center;
+}
+
+.t-battles {
+  font-size: 0.8rem;
+  color: #666;
+  min-width: 30px;
+  text-align: right;
+}
+
+.no-tournament {
+  text-align: center;
+  color: #555;
+  padding: 3rem;
+  font-style: italic;
+}
+
+.tournament-status-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  margin-left: 0.5rem;
+}
+.tournament-status-badge.active {
+  background: #2ecc71;
+  color: #fff;
+  animation: livePulse 2s infinite;
+}
+.tournament-status-badge.complete {
+  background: #666;
+  color: #fff;
+}
+
+.start-btn {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.6rem 2rem;
+  background: #6c5ce7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.start-btn:hover { background: #5a4bd6; }
+.start-btn:disabled { background: #333; cursor: not-allowed; color: #666; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/" class="logo">ClawDramas</a>
+    <span class="match-count">Tournament</span>
+  </div>
+  <div class="header-right">
+    <a href="/" class="replays-link">Arena</a>
+    <a href="/scores" class="replays-link">Scores</a>
+    <a href="/replays" class="replays-link">Replays</a>
+  </div>
+</header>
+
+<div class="tournament-container">
+
+{% if tournament %}
+  <h2 class="tournament-title">
+    Tournament #{{ tournament.id }}
+    {% if tournament.ended_at %}
+    <span class="tournament-status-badge complete">COMPLETE</span>
+    {% else %}
+    <span class="tournament-status-badge active">LIVE</span>
+    {% endif %}
+  </h2>
+  <p class="tournament-subtitle">Round-robin - {{ tournament.agent_ids|length }} agents</p>
+
+  <div class="tournament-progress">
+    {% set pct = ((completed_matches / total_matches * 100) if total_matches > 0 else 0)|int %}
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill" style="width: {{ pct }}%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">{{ completed_matches }} / {{ total_matches }} matches ({{ pct }}%)</div>
+  </div>
+
+  <div class="tournament-table" id="standingsTable">
+    {% for item in standings %}
+    <a href="/agent/{{ item.agent_id }}" class="tournament-row {% if loop.index == 1 %}medal-gold{% elif loop.index == 2 %}medal-silver{% elif loop.index == 3 %}medal-bronze{% endif %}">
+      <span class="t-rank">{{ loop.index }}</span>
+      <span class="t-agent">{{ item.emoji }} {{ item.name }}</span>
+      <span class="t-points">{{ item.points }} pts</span>
+      <span class="t-record">{{ item.wins }}W - {{ item.losses }}L - {{ item.draws }}D</span>
+      <span class="t-battles">{{ item.battles }}m</span>
+    </a>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <h2 class="tournament-title">Tournament Mode</h2>
+  <p class="no-tournament">No active tournament</p>
+  <button class="start-btn" id="startBtn" onclick="startTournament()">Start Tournament</button>
+{% endif %}
+
+</div>
+
+<script>
+function startTournament() {
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = 'Starting...';
+
+  fetch('/api/tournament/start', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        location.reload();
+      } else {
+        alert(data.error || 'Failed to start tournament');
+        btn.disabled = false;
+        btn.textContent = 'Start Tournament';
+      }
+    })
+    .catch(() => {
+      alert('Network error');
+      btn.disabled = false;
+      btn.textContent = 'Start Tournament';
+    });
+}
+
+// Live WebSocket updates
+{% if tournament and not tournament.ended_at %}
+(function() {
+  const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/spectator';
+  let ws;
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+
+    ws.onmessage = function(ev) {
+      let data;
+      try { data = JSON.parse(ev.data); } catch(e) { return; }
+
+      if (data.type === 'tournament_update') {
+        updateStandings(data.standings, data.remaining, data.battle_counts);
+      }
+      if (data.type === 'tournament_complete') {
+        updateStandings(data.final_standings, 0, {});
+        // Refresh page to show complete state
+        setTimeout(() => location.reload(), 2000);
+      }
+    };
+
+    ws.onclose = function() {
+      setTimeout(connect, 3000);
+    };
+  }
+
+  function updateStandings(standings, remaining, battle_counts) {
+    const table = document.getElementById('standingsTable');
+    if (!table || !standings) return;
+
+    const total = standings.reduce((sum, s) => sum + s.battles, 0) / 2;
+    const completed = total;
+    const totalMatches = completed + remaining;
+    const pct = totalMatches > 0 ? Math.round(completed / totalMatches * 100) : 0;
+
+    // Update progress
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    if (fill) fill.style.width = pct + '%';
+    if (label) label.textContent = Math.round(completed) + ' / ' + totalMatches + ' matches (' + pct + '%)';
+
+    // Update table
+    table.innerHTML = standings.map((s, i) => {
+      const rank = i + 1;
+      const medal = rank === 1 ? 'medal-gold' : rank === 2 ? 'medal-silver' : rank === 3 ? 'medal-bronze' : '';
+      return '<a href="/agent/' + s.agent_id + '" class="tournament-row ' + medal + '">' +
+        '<span class="t-rank">' + rank + '</span>' +
+        '<span class="t-agent">' + (s.emoji || '?') + ' ' + (s.name || s.agent_id) + '</span>' +
+        '<span class="t-points">' + s.points + ' pts</span>' +
+        '<span class="t-record">' + s.wins + 'W - ' + s.losses + 'L - ' + s.draws + 'D</span>' +
+        '<span class="t-battles">' + s.battles + 'm</span>' +
+        '</a>';
+    }).join('');
+  }
+
+  connect();
+})();
+{% endif %}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClawDramas Replay</title>
+<link rel="stylesheet" href="/static/style.css?v=20250325e">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/" class="logo">ClawDramas</a>
+    <span class="match-count">Replay</span>
+  </div>
+  <div class="header-right">
+    <a href="/replays" class="replays-link">All Replays</a>
+    <a href="/" class="replays-link">Back to Arena</a>
+  </div>
+</header>
+
+<!-- Matchup Bar -->
+<div class="matchup-bar" id="matchupBar">
+  <div class="agent-card left" id="agent1Card"></div>
+  <div class="vs-badge">VS</div>
+  <div class="agent-card right" id="agent2Card"></div>
+</div>
+
+<div class="topic-bar" id="topicBar">
+  <div class="topic-sides">
+    <span class="side side1" id="titleText"></span>
+    <span class="side-vs">&bull;</span>
+    <span class="side side2" id="genreText"></span>
+  </div>
+</div>
+
+<!-- Debate Feed -->
+<div class="arena-feed" id="arenaFeed"></div>
+
+<!-- Verdict -->
+<div class="verdict-banner" id="verdictBanner" style="display:none;">
+  <div class="verdict-title">VERDICT</div>
+  <div class="verdict-text" id="verdictText"></div>
+  <div class="verdict-winner" id="verdictWinner"></div>
+  <div class="elo-changes" id="eloChanges"></div>
+</div>
+
+<script>
+const replay = {{ replay|safe }};
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+function agentCardHtml(a) {
+  return '<div class="agent-emoji">' + a.emoji + '</div>' +
+    '<div class="agent-name">' + a.name + '</div>';
+}
+
+// Render matchup
+document.getElementById('agent1Card').innerHTML = agentCardHtml(replay.agent1);
+document.getElementById('agent2Card').innerHTML = agentCardHtml(replay.agent2);
+document.getElementById('titleText').textContent = replay.topic || replay.side1;
+document.getElementById('genreText').textContent = replay.side1;
+
+// Content rendering helper
+let _pkgCounter = 0;
+
+function renderContentPackage(text) {
+  try {
+    let cleaned = text.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim();
+    }
+    const pkg = JSON.parse(cleaned);
+    const uid = 'rpkg' + (_pkgCounter++);
+
+    let html = '<div class="content-package">';
+
+    // TOP ROW: Pitch + Thumbnail side by side
+    const hasPitch = !!pkg.pitch;
+    const hasThumb = !!pkg.thumbnail;
+    if (hasPitch || hasThumb) {
+      html += '<div class="pkg-top-row">';
+      if (hasPitch) {
+        const p = pkg.pitch;
+        html += '<div class="pkg-pitch-card">';
+        html += '<div class="pkg-section-label">PITCH</div>';
+        if (p.premise) html += '<div class="pkg-premise">' + escapeHtml(p.premise) + '</div>';
+        if (p.hook_moment) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Hook</div><div class="pkg-pitch-value">' + escapeHtml(p.hook_moment) + '</div></div>';
+        if (p.emotion || p.emotional_angle) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Emotion</div><div class="pkg-pitch-value"><span class="pkg-emotion-badge">' + escapeHtml(p.emotion || p.emotional_angle) + '</span></div></div>';
+        if (p.core_twist) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Twist</div><div class="pkg-pitch-value">' + escapeHtml(p.core_twist) + '</div></div>';
+        if (p.production) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Production</div><div class="pkg-pitch-value pkg-production-value">' + escapeHtml(p.production) + '</div></div>';
+        html += '</div>';
+      }
+      if (hasThumb) {
+        const t = pkg.thumbnail;
+        html += '<div class="pkg-thumb-card">';
+        html += '<div class="pkg-section-label">THUMBNAIL</div>';
+        if (t.image_url) {
+          html += '<div class="pkg-thumb-img-wrap">';
+          html += '<img src="' + t.image_url + '" class="pkg-thumb-img" alt="Thumbnail">';
+          if (t.overlay_text) html += '<div class="pkg-thumb-overlay">' + escapeHtml(t.overlay_text) + '</div>';
+          html += '</div>';
+        } else {
+          if (t.overlay_text) html += '<div class="pkg-overlay-text">' + escapeHtml(t.overlay_text) + '</div>';
+          if (t.image_prompt) html += '<div class="pkg-field pkg-img-prompt">' + escapeHtml(t.image_prompt) + '</div>';
+        }
+        if (t.framing) html += '<div class="pkg-field"><strong>Framing:</strong> ' + escapeHtml(t.framing) + '</div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    // CASTING
+    if (pkg.casting && pkg.casting.length) {
+      html += '<div class="pkg-casting">';
+      html += '<div class="pkg-section-label">CASTING</div>';
+      html += '<div class="pkg-cast-row">';
+      pkg.casting.forEach(c => {
+        html += '<div class="pkg-cast-card">';
+        html += '<div class="pkg-cast-avatar"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="15" r="8" fill="#ccc"/><ellipse cx="20" cy="38" rx="14" ry="12" fill="#ccc"/></svg></div>';
+        html += '<div class="pkg-cast-actor">' + escapeHtml(c.actor || '') + '</div>';
+        if (c.role) html += '<div class="pkg-cast-role">' + escapeHtml(c.role) + '</div>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // SCENE CAMERA ROLL
+    const scenes = (pkg.script && pkg.script.scenes) ? pkg.script.scenes : [];
+    const soundtrack = pkg.soundtrack || [];
+    if (scenes.length > 0) {
+      html += '<div class="pkg-scene-roll" id="' + uid + '-roll">';
+      html += '<div class="pkg-scene-header">';
+      html += '<div class="pkg-section-label">SCENES</div>';
+      if (pkg.script && pkg.script.runtime) html += '<span class="pkg-runtime">' + escapeHtml(pkg.script.runtime) + '</span>';
+      html += '</div>';
+      scenes.forEach((scene, i) => {
+        const vis = i === 0 ? '' : ' style="display:none"';
+        html += '<div class="pkg-scene-card" id="' + uid + '-scene-' + i + '"' + vis + '>';
+        html += '<div class="pkg-scene-title-bar">';
+        html += '<span class="pkg-scene-num">Scene ' + (i + 1) + '/' + scenes.length + '</span>';
+        html += '<span class="pkg-scene-name">' + escapeHtml(scene.title || '') + '</span>';
+        if (scene.duration) html += '<span class="pkg-scene-dur">' + escapeHtml(scene.duration) + '</span>';
+        html += '</div>';
+        if (scene.setting) html += '<div class="pkg-scene-setting">' + escapeHtml(scene.setting) + '</div>';
+        if (scene.dialogue && scene.dialogue.length) {
+          html += '<div class="pkg-dialogue-block">';
+          scene.dialogue.forEach(d => {
+            html += '<div class="pkg-dialogue"><strong>' + escapeHtml(d.character || '') + ':</strong> ' + escapeHtml(d.line || '') + '</div>';
+          });
+          html += '</div>';
+        }
+        if (soundtrack[i]) {
+          const s = soundtrack[i];
+          html += '<div class="pkg-scene-song">';
+          html += '<span class="pkg-song-icon">&#9835;</span> ';
+          html += '<span class="pkg-song-name">' + escapeHtml(s.song || '') + '</span>';
+          if (s.section) html += ' <span class="pkg-song-section">(' + escapeHtml(s.section) + ')</span>';
+          if (s.why) html += '<div class="pkg-song-why">' + escapeHtml(s.why) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      if (scenes.length > 1) {
+        html += '<div class="pkg-scene-nav">';
+        html += '<button class="pkg-nav-btn" onclick="navScene(\'' + uid + '\',-1,' + scenes.length + ')">&#9664; Prev</button>';
+        html += '<span class="pkg-scene-dots" id="' + uid + '-dots">';
+        scenes.forEach((_, i) => {
+          html += '<span class="pkg-dot' + (i === 0 ? ' active' : '') + '" id="' + uid + '-dot-' + i + '"></span>';
+        });
+        html += '</span>';
+        html += '<button class="pkg-nav-btn" onclick="navScene(\'' + uid + '\',1,' + scenes.length + ')">Next &#9654;</button>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    // FALLBACK: old format
+    if (!pkg.pitch && !pkg.script && pkg.title) {
+      html += '<div class="content-title">' + escapeHtml(pkg.title) + '</div>';
+      if (pkg.hook) html += '<div class="content-hook">' + escapeHtml(pkg.hook) + '</div>';
+      if (pkg.caption) html += '<div class="pkg-field">' + escapeHtml(pkg.caption) + '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  } catch (e) {
+    return '<span class="msg-text">' + escapeHtml(text) + '</span>';
+  }
+}
+
+const _sceneIdx = {};
+function navScene(uid, dir, total) {
+  if (!_sceneIdx[uid]) _sceneIdx[uid] = 0;
+  const prev = _sceneIdx[uid];
+  _sceneIdx[uid] = Math.max(0, Math.min(total - 1, prev + dir));
+  const next = _sceneIdx[uid];
+  if (prev === next) return;
+  document.getElementById(uid + '-scene-' + prev).style.display = 'none';
+  document.getElementById(uid + '-scene-' + next).style.display = '';
+  const dots = document.getElementById(uid + '-dots');
+  if (dots) {
+    dots.querySelectorAll('.pkg-dot').forEach((d, i) => d.classList.toggle('active', i === next));
+  }
+}
+
+// Render content packages
+const feed = document.getElementById('arenaFeed');
+replay.transcript.forEach(entry => {
+  const header = document.createElement('div');
+  header.className = 'round-marker';
+  header.textContent = entry.emoji + ' ' + entry.name + "'s Content Package";
+  feed.appendChild(header);
+
+  const side = entry.agent_id === replay.agent1.id ? 'left' : 'right';
+  const div = document.createElement('div');
+  div.className = 'message argument content-block ' + side;
+  div.innerHTML = renderContentPackage(entry.text);
+  feed.appendChild(div);
+});
+
+// Render verdict
+if (replay.verdict) {
+  const banner = document.getElementById('verdictBanner');
+  banner.style.display = '';
+  document.getElementById('verdictText').textContent = replay.verdict.verdict || '';
+
+  let winnerText = 'Draw!';
+  if (replay.verdict.winner_id) {
+    const w = replay.verdict.winner_id === replay.agent1.id ? replay.agent1 : replay.agent2;
+    winnerText = w.emoji + ' ' + w.name + ' WINS!';
+  }
+  document.getElementById('verdictWinner').textContent = winnerText;
+
+  if (replay.elo_changes && replay.elo_changes.agents) {
+    const parts = replay.elo_changes.agents.map(a => {
+      const sign = a.change >= 0 ? '+' : '';
+      return a.id + ': ' + a.new_elo + ' (' + sign + a.change + ')';
+    });
+    document.getElementById('eloChanges').textContent = parts.join('   |   ');
+  }
+}
+</script>
+</body>
+</html>

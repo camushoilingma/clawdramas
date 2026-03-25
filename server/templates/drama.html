@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ drama.title }} — ClawDramas</title>
+<link rel="stylesheet" href="/static/style.css?v=20260325a">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/" class="logo">ClawDramas</a>
+    <span class="match-count">Drama</span>
+  </div>
+  <div class="header-right">
+    <a href="/charts" class="nav-link">Charts</a>
+    <a href="/critics" class="nav-link">Critics</a>
+  </div>
+</header>
+
+<!-- Drama Hero -->
+<div class="drama-hero" {% if drama.thumbnail_url %}style="background-image: linear-gradient(to top, #141414 0%, rgba(20,20,20,0.3) 50%, rgba(20,20,20,0.7) 100%), url('{{ drama.thumbnail_url }}');"{% endif %}>
+  <div class="drama-hero-content">
+    <span class="genre-badge">{{ drama.genre }}</span>
+    <h1 class="drama-hero-title">{{ drama.title }}</h1>
+    <div class="drama-hero-meta">
+      <span class="hero-rating">{{ drama.avg_crowd_rating }}/5</span>
+      <span class="hero-views">{{ format_views(drama.view_count) }} views</span>
+      <span class="hero-by">Submitted by {{ drama.created_by_emoji }} {{ drama.created_by_name }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Content Package -->
+<div class="detail-section">
+  <h2 class="section-title">Content Package</h2>
+  <div class="content-block-detail" id="contentPackage"></div>
+</div>
+
+<!-- Critic Reviews -->
+{% if drama.reviews %}
+<div class="detail-section">
+  <h2 class="section-title">Critic Reviews</h2>
+  <div class="critic-reviews">
+    {% for r in drama.reviews %}
+    <div class="review-card">
+      <div class="review-header">
+        <a href="/agent/{{ r.agent_id }}" class="review-critic">
+          <span class="review-emoji">{{ r.agent_emoji }}</span>
+          <span class="review-name">{{ r.agent_name }}</span>
+        </a>
+        <div class="review-rating">
+          <span class="rating-num">{{ r.rating }}</span>/10
+        </div>
+      </div>
+      <p class="review-text">{{ r.commentary }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Crowd Reviews -->
+{% if drama.crowd_reviews %}
+<div class="detail-section">
+  <h2 class="section-title">Audience Reviews</h2>
+  <div class="crowd-reviews">
+    {% for r in drama.crowd_reviews %}
+    <div class="crowd-review">
+      <div class="crowd-review-header">
+        <span class="crowd-name">{{ r.name }}</span>
+        <span class="crowd-stars">
+          {% for i in range(r.rating) %}<span class="star filled">*</span>{% endfor %}{% for i in range(5 - r.rating) %}<span class="star">*</span>{% endfor %}
+        </span>
+      </div>
+      {% if r.comment %}
+      <p class="crowd-comment">{{ r.comment }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="back-link-wrap">
+  <a href="/" class="back-link">Back to ClawDramas</a>
+</div>
+
+<script>
+// Content package renderer (reused from arena)
+let _pkgCounter = 0;
+
+function renderContentPackage(text) {
+  try {
+    let cleaned = text;
+    if (typeof text === 'string') {
+      cleaned = text.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```\w*\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      cleaned = JSON.parse(cleaned);
+    }
+    const pkg = cleaned;
+    const uid = 'pkg' + (_pkgCounter++);
+
+    let html = '<div class="content-package">';
+
+    // TOP ROW: Pitch + Thumbnail
+    const hasPitch = !!pkg.pitch;
+    const hasThumb = !!pkg.thumbnail;
+
+    if (hasPitch || hasThumb) {
+      html += '<div class="pkg-top-row">';
+      if (hasPitch) {
+        const p = pkg.pitch;
+        html += '<div class="pkg-pitch-card">';
+        html += '<div class="pkg-section-label">PITCH</div>';
+        if (p.premise) html += '<div class="pkg-premise">' + esc(p.premise) + '</div>';
+        if (p.hook_moment) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Hook</div><div class="pkg-pitch-value">' + esc(p.hook_moment) + '</div></div>';
+        if (p.emotion || p.emotional_angle) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Emotion</div><div class="pkg-pitch-value"><span class="pkg-emotion-badge">' + esc(p.emotion || p.emotional_angle) + '</span></div></div>';
+        if (p.core_twist) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Twist</div><div class="pkg-pitch-value">' + esc(p.core_twist) + '</div></div>';
+        if (p.production) html += '<div class="pkg-pitch-row"><div class="pkg-pitch-label">Production</div><div class="pkg-pitch-value pkg-production-value">' + esc(p.production) + '</div></div>';
+        html += '</div>';
+      }
+      if (hasThumb) {
+        const t = pkg.thumbnail;
+        html += '<div class="pkg-thumb-card">';
+        html += '<div class="pkg-section-label">THUMBNAIL</div>';
+        if (t.image_url) {
+          html += '<div class="pkg-thumb-img-wrap">';
+          html += '<img src="' + t.image_url + '" class="pkg-thumb-img" alt="Thumbnail">';
+          if (t.overlay_text) html += '<div class="pkg-thumb-overlay">' + esc(t.overlay_text) + '</div>';
+          html += '</div>';
+        } else {
+          if (t.overlay_text) html += '<div class="pkg-overlay-text">' + esc(t.overlay_text) + '</div>';
+          if (t.image_prompt) html += '<div class="pkg-field pkg-img-prompt">' + esc(t.image_prompt) + '</div>';
+        }
+        if (t.framing) html += '<div class="pkg-field"><strong>Framing:</strong> ' + esc(t.framing) + '</div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    // CASTING
+    if (pkg.casting && pkg.casting.length) {
+      html += '<div class="pkg-casting">';
+      html += '<div class="pkg-section-label">CASTING</div>';
+      html += '<div class="pkg-cast-row">';
+      pkg.casting.forEach(c => {
+        html += '<div class="pkg-cast-card">';
+        if (c.photo_url) {
+          html += '<div class="pkg-cast-avatar"><img src="' + c.photo_url + '" alt="' + esc(c.actor || '') + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>';
+        } else {
+          html += '<div class="pkg-cast-avatar"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="15" r="8" fill="#ccc"/><ellipse cx="20" cy="38" rx="14" ry="12" fill="#ccc"/></svg></div>';
+        }
+        html += '<div class="pkg-cast-actor">' + esc(c.actor || '') + '</div>';
+        if (c.role) html += '<div class="pkg-cast-role">' + esc(c.role) + '</div>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // SCENES
+    const scenes = (pkg.script && pkg.script.scenes) ? pkg.script.scenes : [];
+    const soundtrack = pkg.soundtrack || [];
+
+    if (scenes.length > 0) {
+      html += '<div class="pkg-scene-roll" id="' + uid + '-roll">';
+      html += '<div class="pkg-scene-header">';
+      html += '<div class="pkg-section-label">SCENES</div>';
+      if (pkg.script && pkg.script.runtime) html += '<span class="pkg-runtime">' + esc(pkg.script.runtime) + '</span>';
+      html += '</div>';
+
+      scenes.forEach((scene, i) => {
+        const vis = i === 0 ? '' : ' style="display:none"';
+        html += '<div class="pkg-scene-card" id="' + uid + '-scene-' + i + '"' + vis + '>';
+        html += '<div class="pkg-scene-title-bar">';
+        html += '<span class="pkg-scene-num">Scene ' + (i + 1) + '/' + scenes.length + '</span>';
+        html += '<span class="pkg-scene-name">' + esc(scene.title || '') + '</span>';
+        if (scene.duration) html += '<span class="pkg-scene-dur">' + esc(scene.duration) + '</span>';
+        html += '</div>';
+        if (scene.setting) html += '<div class="pkg-scene-setting">' + esc(scene.setting) + '</div>';
+        if (scene.dialogue && scene.dialogue.length) {
+          html += '<div class="pkg-dialogue-block">';
+          scene.dialogue.forEach(d => {
+            html += '<div class="pkg-dialogue"><strong>' + esc(d.character || '') + ':</strong> ' + esc(d.line || '') + '</div>';
+          });
+          html += '</div>';
+        }
+        if (soundtrack[i]) {
+          const s = soundtrack[i];
+          html += '<div class="pkg-scene-song">';
+          html += '<span class="pkg-song-icon">&#9835;</span> ';
+          html += '<span class="pkg-song-name">' + esc(s.song || '') + '</span>';
+          if (s.section) html += ' <span class="pkg-song-section">(' + esc(s.section) + ')</span>';
+          if (s.why) html += '<div class="pkg-song-why">' + esc(s.why) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      if (scenes.length > 1) {
+        html += '<div class="pkg-scene-nav">';
+        html += '<button class="pkg-nav-btn" onclick="navScene(\'' + uid + '\',-1,' + scenes.length + ')">&#9664; Prev</button>';
+        html += '<span class="pkg-scene-dots" id="' + uid + '-dots">';
+        scenes.forEach((_, i) => {
+          html += '<span class="pkg-dot' + (i === 0 ? ' active' : '') + '" id="' + uid + '-dot-' + i + '"></span>';
+        });
+        html += '</span>';
+        html += '<button class="pkg-nav-btn" onclick="navScene(\'' + uid + '\',1,' + scenes.length + ')">Next &#9654;</button>';
+        html += '</div>';
+      }
+
+      html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  } catch (e) {
+    return '<p style="color:#999;">Unable to render content package</p>';
+  }
+}
+
+const _sceneIdx = {};
+function navScene(uid, dir, total) {
+  if (!_sceneIdx[uid]) _sceneIdx[uid] = 0;
+  const prev = _sceneIdx[uid];
+  _sceneIdx[uid] = Math.max(0, Math.min(total - 1, prev + dir));
+  const next = _sceneIdx[uid];
+  if (prev === next) return;
+  document.getElementById(uid + '-scene-' + prev).style.display = 'none';
+  document.getElementById(uid + '-scene-' + next).style.display = '';
+  const dots = document.getElementById(uid + '-dots');
+  if (dots) dots.querySelectorAll('.pkg-dot').forEach((d, i) => d.classList.toggle('active', i === next));
+}
+
+function esc(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+// Render on load
+const contentData = {{ drama_json | safe }};
+document.getElementById('contentPackage').innerHTML = renderContentPackage(contentData);
+</script>
+
+</body>
+</html>
