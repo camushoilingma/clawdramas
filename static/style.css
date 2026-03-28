@@ -1,0 +1,1466 @@
+/* ClawDramas — Netflix-style Catalog Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #141414;
+  color: #e5e5e5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+}
+
+a { color: #e5e5e5; text-decoration: none; }
+a:hover { color: #fff; }
+
+/* Header — Netflix top bar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 2rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.logo {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #e50914;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 8px rgba(229,9,20,0.4);
+}
+
+.match-count {
+  color: #808080;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.nav-link {
+  color: #b3b3b3;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 1rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.08); text-decoration: none; }
+
+/* Genre nav tabs */
+.genre-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.genre-nav::-webkit-scrollbar { display: none; }
+
+.genre-tab {
+  color: #b3b3b3;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.genre-tab:hover { color: #fff; text-decoration: none; }
+.genre-tab.active {
+  color: #fff;
+  font-weight: 700;
+  background: rgba(255,255,255,0.1);
+}
+
+/* ============================
+   Hero Banner
+   ============================ */
+
+.hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: flex-end;
+  padding: 3rem 3rem 2.5rem;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+.genre-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.2rem 0.7rem;
+  background: rgba(229,9,20,0.9);
+  color: #fff;
+  border-radius: 3px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 3.5rem;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  margin-bottom: 0.6rem;
+  text-shadow: 2px 3px 10px rgba(0,0,0,0.7);
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-rating {
+  font-weight: 700;
+  color: #46d369;
+  font-size: 0.95rem;
+}
+
+.hero-views {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.hero-by {
+  color: #808080;
+  font-size: 0.82rem;
+}
+
+.hero-btn {
+  display: inline-block;
+  padding: 0.6rem 2rem;
+  background: rgba(255,255,255,0.95);
+  color: #141414;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.hero-btn:hover { background: #fff; color: #000; text-decoration: none; }
+
+.hero-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.play-btn {
+  background: rgba(255,255,255,0.95);
+  color: #141414;
+  font-size: 1rem;
+  padding: 0.7rem 2.5rem;
+}
+.play-btn:hover { background: #fff; }
+
+.hero-btn-secondary {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.hero-btn-secondary:hover { background: rgba(255,255,255,0.3); color: #fff; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 6rem 2rem;
+  color: #555;
+}
+.empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+.empty-state h2 { color: #999; margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ============================
+   Genre Rows / Drama Cards
+   ============================ */
+
+.catalog-rows {
+  padding: 1.5rem 0 3rem;
+}
+
+.genre-row {
+  margin-bottom: 1.5rem;
+  padding: 0 2rem;
+}
+
+.row-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.4rem;
+  color: #fff;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.6rem;
+}
+
+.drama-scroll {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+}
+
+.drama-scroll::-webkit-scrollbar { height: 4px; }
+.drama-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.drama-card {
+  flex: 0 0 280px;
+  height: 160px;
+  border-radius: 6px;
+  background-color: #2a2a2a;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  scroll-snap-align: start;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.drama-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  text-decoration: none;
+  z-index: 5;
+}
+
+.drama-card.featured {
+  flex: 0 0 340px;
+  height: 200px;
+}
+
+.card-overlay {
+  padding: 0.6rem 0.8rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.card-genre {
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #e50914;
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-top: 0.15rem;
+}
+
+.card-studio {
+  font-size: 0.65rem;
+  color: #b3b3b3;
+  margin-top: 0.1rem;
+  font-weight: 500;
+}
+
+.card-meta {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.card-rating {
+  color: #46d369;
+  font-weight: 700;
+}
+
+.card-views {
+  color: #999;
+}
+
+/* Chart rank overlay */
+.chart-rank {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.8rem;
+  color: #fff;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+/* ============================
+   Charts Page
+   ============================ */
+
+.charts-container {
+  padding: 1.5rem 0 3rem;
+}
+
+.chart-section {
+  margin-bottom: 2rem;
+  padding: 0 2rem;
+}
+
+.chart-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.8rem;
+}
+
+.chart-empty {
+  color: #555;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
+/* ============================
+   Drama Detail Page
+   ============================ */
+
+.drama-hero {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: flex-end;
+  padding: 3rem 3rem 2rem;
+}
+
+.drama-hero-content {
+  max-width: 700px;
+}
+
+.drama-hero-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 3rem;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 3px 10px rgba(0,0,0,0.7);
+}
+
+.drama-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+/* Detail sections */
+.detail-section {
+  margin: 1.2rem 2rem;
+  padding: 1.5rem;
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 8px;
+}
+
+.section-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.2rem;
+  color: #e50914;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* Content block for detail page */
+.content-block-detail {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* Critic reviews */
+.critic-reviews {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.review-card {
+  flex: 1;
+  min-width: 280px;
+  padding: 1.2rem;
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.review-critic {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.review-emoji { font-size: 1.8rem; }
+
+.review-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.review-rating {
+  font-size: 0.85rem;
+  color: #808080;
+}
+
+.review-rating .rating-num {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.8rem;
+  color: #e50914;
+  font-weight: 400;
+}
+
+.review-text {
+  font-size: 0.92rem;
+  color: #b3b3b3;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Crowd reviews */
+.crowd-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.crowd-review {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+.crowd-review:last-child { border-bottom: none; }
+
+.crowd-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.crowd-name {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #ccc;
+}
+
+.crowd-stars {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.star { color: #333; }
+.star.filled { color: #f5c518; }
+
+.crowd-comment {
+  font-size: 0.82rem;
+  color: #999;
+  line-height: 1.5;
+}
+
+/* Back link */
+.back-link-wrap {
+  padding: 1.5rem 2rem 3rem;
+}
+
+.back-link {
+  color: #999;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+.back-link:hover { color: #fff; }
+
+/* Review score badge (agent page) */
+.review-score-badge {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #e50914;
+  padding: 0.15rem 0.5rem;
+  background: rgba(229,9,20,0.1);
+  border-radius: 3px;
+}
+
+/* ============================
+   Critics Page
+   ============================ */
+
+.critics-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+}
+
+.critics-title {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  letter-spacing: 3px;
+  margin-bottom: 1.5rem;
+}
+
+.critic-profile {
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.critic-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.critic-avatar {
+  font-size: 4rem;
+  flex-shrink: 0;
+}
+
+.critic-info { flex: 1; }
+
+.critic-name-link { display: inline-block; }
+.critic-name-link:hover { text-decoration: none; }
+
+.critic-name {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.6rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.critic-catchphrase {
+  font-size: 0.9rem;
+  color: #808080;
+  font-style: italic;
+  margin: 0.3rem 0;
+}
+
+.critic-personality {
+  font-size: 0.88rem;
+  color: #b3b3b3;
+  line-height: 1.6;
+  margin: 0.3rem 0;
+}
+
+.critic-style {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0.2rem 0 0.5rem;
+}
+
+.critic-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.critic-review-list {
+  margin-top: 1.2rem;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 1rem;
+}
+
+.critic-reviews-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.6rem;
+}
+
+.critic-review-item {
+  display: block;
+  padding: 0.8rem;
+  margin-bottom: 0.4rem;
+  background: #1e1e1e;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.critic-review-item:hover { background: #252525; text-decoration: none; }
+
+.critic-review-drama {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.critic-review-title {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.92rem;
+}
+
+.critic-review-genre {
+  font-size: 0.7rem;
+  color: #e50914;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.critic-review-score {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.3rem;
+  color: #e50914;
+  margin-bottom: 0.2rem;
+}
+
+.critic-review-text {
+  font-size: 0.82rem;
+  color: #999;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.no-reviews {
+  color: #555;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* ============================
+   Agent Profile Page
+   ============================ */
+
+.profile-hero {
+  text-align: center;
+  padding: 3rem 1rem 1.5rem;
+  background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+}
+
+.profile-emoji {
+  font-size: 5rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-name {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 0.3rem;
+  letter-spacing: 2px;
+}
+
+.profile-catchphrase {
+  font-size: 0.95rem;
+  color: #808080;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 1.5rem;
+  margin: 0 2rem 0.5rem;
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  min-width: 65px;
+}
+
+.stat-value {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-elo { color: #e50914; }
+
+.stat-label {
+  font-size: 0.6rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 0.1rem;
+  font-weight: 700;
+}
+
+.profile-section {
+  margin: 0.8rem 2rem;
+  padding: 1.2rem;
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 8px;
+}
+
+.profile-section-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 0.6rem;
+}
+
+.profile-text {
+  font-size: 0.95rem;
+  color: #b3b3b3;
+  line-height: 1.7;
+}
+
+.profile-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.skill-tag {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(229,9,20,0.1);
+  border: 1px solid rgba(229,9,20,0.2);
+  border-radius: 3px;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+}
+
+.profile-skills .skill-tag {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.profile-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.profile-match-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: #1e1e1e;
+  border-radius: 6px;
+  color: #e5e5e5;
+  transition: all 0.15s;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.profile-match-card:hover { background: #252525; text-decoration: none; }
+
+.match-opponent {
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 140px;
+  flex: 1;
+}
+
+.match-topic {
+  font-size: 0.8rem;
+  color: #808080;
+  text-align: center;
+}
+
+.match-result {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 80px;
+  justify-content: flex-end;
+}
+
+.no-replays {
+  text-align: center;
+  color: #555;
+  padding: 2rem;
+}
+
+/* ============================
+   Content Package Styles
+   ============================ */
+
+.content-block {
+  max-width: 95%;
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 1rem 1.2rem !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.content-package {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.content-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #141414;
+  line-height: 1.3;
+}
+
+.content-hook {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #b91c1c;
+  border-left: 3px solid #e50914;
+  padding-left: 0.6rem;
+  line-height: 1.4;
+}
+
+.content-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.hashtag-pill {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  background: #f3f4f6;
+  border-radius: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Package Section Styles */
+.pkg-section-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #e50914;
+  margin-bottom: 0.5rem;
+}
+
+.pkg-premise {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #141414;
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+}
+
+.pkg-field {
+  font-size: 0.82rem;
+  color: #4b5563;
+  line-height: 1.5;
+  margin-bottom: 0.2rem;
+}
+
+.pkg-field strong {
+  color: #9ca3af;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* Top row: Pitch + Thumbnail side by side */
+.pkg-top-row {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.pkg-pitch-card,
+.pkg-thumb-card {
+  flex: 1;
+  padding: 0.8rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 0;
+}
+
+.pkg-thumb-card {
+  max-width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pkg-img-prompt {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #9ca3af;
+}
+
+.pkg-overlay-text {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  background: linear-gradient(135deg, #141414, #2d2d2d);
+  border-radius: 6px;
+  margin: 0.3rem 0;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+/* Casting row */
+.pkg-casting {
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pkg-cast-row {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+}
+
+.pkg-cast-card {
+  flex: 0 0 auto;
+  width: 72px;
+  text-align: center;
+}
+
+.pkg-cast-avatar {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 0.3rem;
+  border-radius: 50%;
+  background: #e5e7eb;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pkg-cast-actor {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.pkg-cast-char {
+  font-size: 0.62rem;
+  color: #9ca3af;
+  line-height: 1.2;
+  margin-top: 0.1rem;
+}
+
+.pkg-cast-role {
+  font-size: 0.58rem;
+  color: #6b7280;
+  font-weight: 600;
+  margin-top: 0.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Scene camera roll */
+.pkg-scene-roll {
+  margin-top: 0.3rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.5rem;
+}
+
+.pkg-scene-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.pkg-runtime {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.pkg-scene-card {
+  padding: 0.7rem 0.8rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  border-left: 3px solid #e50914;
+}
+
+.pkg-scene-title-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.pkg-scene-num {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.pkg-scene-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #141414;
+  flex: 1;
+}
+
+.pkg-scene-dur {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pkg-scene-setting {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+.pkg-dialogue-block {
+  margin: 0.3rem 0;
+}
+
+.pkg-dialogue {
+  font-size: 0.8rem;
+  color: #374151;
+  line-height: 1.6;
+  margin-left: 0.3rem;
+  margin-bottom: 0.15rem;
+}
+
+.pkg-dialogue strong {
+  color: #e50914;
+  font-size: 0.8rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Scene soundtrack inline */
+.pkg-scene-song {
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+.pkg-song-icon { color: #e50914; }
+.pkg-song-name { font-weight: 600; color: #374151; }
+.pkg-song-section { font-size: 0.65rem; color: #9ca3af; }
+.pkg-song-why { font-size: 0.65rem; font-style: italic; color: #9ca3af; margin-top: 0.1rem; }
+
+/* Scene navigation */
+.pkg-scene-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.pkg-nav-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.pkg-nav-btn:hover { background: #e5e7eb; color: #111; }
+
+.pkg-scene-dots {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.pkg-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d1d5db;
+  transition: all 0.2s;
+}
+
+.pkg-dot.active {
+  background: #e50914;
+  width: 8px;
+  height: 8px;
+}
+
+/* Pitch row layout */
+.pkg-pitch-row { margin-bottom: 0.4rem; }
+.pkg-pitch-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 0.1rem; }
+.pkg-pitch-value { font-size: 0.85rem; color: #374151; line-height: 1.5; }
+.pkg-production-value { font-size: 0.78rem; color: #6b7280; }
+
+.pkg-emotion-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.6rem;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+}
+
+/* Thumbnail image styles */
+.pkg-thumb-img-wrap {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.pkg-thumb-img {
+  width: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+.pkg-thumb-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.8rem 0.6rem 0.5rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.1rem;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+/* ============================
+   Script Play Button (in content package)
+   ============================ */
+
+.pkg-play-section {
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pkg-play-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.pkg-play-count {
+  font-size: 0.82rem;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.pkg-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.8rem;
+  background: #141414;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.pkg-play-btn:hover { background: #333; }
+
+/* Soundtrack in content package */
+.pkg-soundtrack-section {
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pkg-soundtrack-item {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+/* ============================
+   Script Modal (full-screen reader)
+   ============================ */
+
+.script-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  overflow-y: auto;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.script-modal.open { display: flex; justify-content: center; padding: 2rem; }
+
+.script-modal-content {
+  background: #1a1a1a;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 100%;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  border: 1px solid #333;
+}
+
+.script-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #2a2a2a;
+  position: sticky;
+  top: 0;
+  background: #1a1a1a;
+  z-index: 1;
+  border-radius: 10px 10px 0 0;
+}
+
+.script-modal-title h2 {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 1.6rem;
+  color: #fff;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.script-now-playing {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #e50914;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.script-close-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #999;
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.script-close-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.script-modal-body {
+  padding: 1rem 1.5rem 2rem;
+}
+
+.script-scene {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+.script-scene:last-child { border-bottom: none; margin-bottom: 0; }
+
+.script-scene-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.script-scene-num {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  background: rgba(229,9,20,0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.script-scene-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.script-scene-dur {
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.script-scene-setting {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #808080;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+  padding-left: 0.5rem;
+  border-left: 2px solid #333;
+}
+
+.script-dialogue-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.script-dialogue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.script-char {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.script-line {
+  font-size: 0.92rem;
+  color: #ccc;
+  line-height: 1.6;
+  padding-left: 0.5rem;
+}
+
+.script-song {
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #2a2a2a;
+  font-size: 0.78rem;
+  color: #666;
+}
+
+/* ============================
+   Scrollbar
+   ============================ */
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* ============================
+   Animations
+   ============================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================
+   Mobile
+   ============================ */
+
+@media (max-width: 600px) {
+  header { padding: 0.6rem 1rem; flex-direction: column; gap: 0.5rem; }
+  .header-left { flex-direction: column; gap: 0.5rem; align-items: flex-start; width: 100%; }
+  .genre-nav { width: 100%; }
+  .genre-tab { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+  .hero-banner { min-height: 320px; padding: 2rem 1.5rem 1.5rem; }
+  .hero-title { font-size: 2.2rem; }
+  .genre-row { padding: 0 1rem; }
+  .drama-card { flex: 0 0 220px; height: 130px; }
+  .chart-section { padding: 0 1rem; }
+  .drama-hero { min-height: 260px; padding: 2rem 1.5rem 1.5rem; }
+  .drama-hero-title { font-size: 2rem; }
+  .detail-section { margin: 0.8rem 1rem; padding: 1rem; }
+  .critic-reviews { flex-direction: column; }
+  .pkg-top-row { flex-direction: column; }
+  .pkg-thumb-card { max-width: 100%; }
+  .critics-container { padding: 1rem; }
+  .critic-header { flex-direction: column; align-items: center; text-align: center; }
+  .profile-stats { margin: 0 1rem 0.5rem; }
+  .profile-section { margin: 0.8rem 1rem; }
+  .back-link-wrap { padding: 1rem; }
+}

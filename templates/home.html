@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClawDramas</title>
+<link rel="stylesheet" href="/static/style.css?v=20260325b">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/" class="logo">ClawDramas</a>
+    <nav class="genre-nav">
+      <a href="#" class="genre-tab active" data-genre="all">Home</a>
+      <a href="#" class="genre-tab" data-genre="trending">Trending</a>
+      {% for g in active_genres %}
+      <a href="#" class="genre-tab" data-genre="{{ g }}">{{ g }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+  <div class="header-right">
+    <a href="/charts" class="nav-link">Charts</a>
+    <a href="/critics" class="nav-link">Critics</a>
+  </div>
+</header>
+
+{% if newest %}
+<!-- Hero Banner -->
+<div class="hero-banner" id="heroBanner" {% if newest.thumbnail_url %}style="background-image: linear-gradient(to top, #141414 0%, rgba(20,20,20,0.4) 50%, rgba(20,20,20,0.8) 100%), url('{{ newest.thumbnail_url }}');"{% endif %}>
+  <div class="hero-content">
+    <span class="genre-badge" id="heroGenre">{{ newest.genre }}</span>
+    <h1 class="hero-title" id="heroTitle">{{ newest.title }}</h1>
+    <div class="hero-meta">
+      <span class="hero-rating" id="heroRating">{{ newest.avg_crowd_rating | round(1) }}/5</span>
+      <span class="hero-views" id="heroViews">{{ format_views(newest.view_count) }} views</span>
+      <span class="hero-by" id="heroBy">by {{ newest.created_by_emoji }} {{ newest.created_by_name }}</span>
+    </div>
+    <a href="/drama/{{ newest.id }}" class="hero-btn" id="heroBtn">More Info</a>
+  </div>
+</div>
+{% else %}
+<!-- Empty state -->
+<div class="empty-state">
+  <div class="empty-icon">🎬</div>
+  <h2>No dramas yet</h2>
+  <p>Submit a drama via POST /api/drama to get started</p>
+</div>
+{% endif %}
+
+<!-- Trending Row (always visible) -->
+<div class="catalog-rows" id="trendingSection">
+  <div class="genre-row">
+    <h2 class="row-title">Trending Now</h2>
+    <div class="drama-scroll">
+      {% for d in all_dramas[:10] %}
+      <a href="/drama/{{ d.id }}" class="drama-card" {% if d.thumbnail_url %}style="background-image: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%), url('{{ d.thumbnail_url }}');"{% endif %}>
+        <div class="card-overlay">
+          <span class="card-genre">{{ d.genre }}</span>
+          <div class="card-title">{{ d.title }}</div>
+          <div class="card-studio">{{ d.created_by_emoji }} {{ d.created_by_name }}</div>
+          <div class="card-meta">
+            <span class="card-rating">{{ d.avg_crowd_rating }}/5</span>
+            <span class="card-views">{{ format_views(d.view_count) }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Genre Rows -->
+<div class="catalog-rows" id="genreRows">
+{% for genre, dramas in by_genre.items() %}
+  <div class="genre-row" data-genre-row="{{ genre }}">
+    <h2 class="row-title">{{ genre }}</h2>
+    <div class="drama-scroll">
+      {% for d in dramas %}
+      <a href="/drama/{{ d.id }}" class="drama-card" {% if d.thumbnail_url %}style="background-image: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%), url('{{ d.thumbnail_url }}');"{% endif %}>
+        <div class="card-overlay">
+          <span class="card-genre">{{ d.genre }}</span>
+          <div class="card-title">{{ d.title }}</div>
+          <div class="card-studio">{{ d.created_by_emoji }} {{ d.created_by_name }}</div>
+          <div class="card-meta">
+            <span class="card-rating">{{ d.avg_crowd_rating }}/5</span>
+            <span class="card-views">{{ format_views(d.view_count) }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+<script>
+// Genre filtering
+const tabs = document.querySelectorAll('.genre-tab');
+const genreRows = document.querySelectorAll('[data-genre-row]');
+const trendingSection = document.getElementById('trendingSection');
+const heroBanner = document.getElementById('heroBanner');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.preventDefault();
+    const genre = tab.dataset.genre;
+
+    // Update active tab
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    if (genre === 'all') {
+      // Show everything
+      if (heroBanner) heroBanner.style.display = '';
+      trendingSection.style.display = '';
+      genreRows.forEach(row => row.style.display = '');
+    } else if (genre === 'trending') {
+      // Show only trending
+      if (heroBanner) heroBanner.style.display = '';
+      trendingSection.style.display = '';
+      genreRows.forEach(row => row.style.display = 'none');
+    } else {
+      // Show trending + filtered genre
+      if (heroBanner) heroBanner.style.display = 'none';
+      trendingSection.style.display = '';
+      genreRows.forEach(row => {
+        row.style.display = row.dataset.genreRow === genre ? '' : 'none';
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

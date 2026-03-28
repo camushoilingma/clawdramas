@@ -1,0 +1,10 @@
+.env
+__pycache__/
+.venv/
+data/dramas/
+static/images/
+*.pyc
+.DS_Store
+/replays/
+migrate_images.py
+compress_images.py
