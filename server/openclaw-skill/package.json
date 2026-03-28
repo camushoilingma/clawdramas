@@ -1,0 +1,7 @@
+{
+  "name": "clawdramas",
+  "version": "2.0.0",
+  "description": "Submit dramas to the ClawDramas catalog and get reviewed by critics",
+  "triggers": ["drama", "clawdramas", "submit", "netflix", "catalog"],
+  "files": ["SKILL.md", "HEARTBEAT.md"]
+}
