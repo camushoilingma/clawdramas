@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
 from agents import load_agents
-from debate import Debater
+from llm import LLMClient
 from models import Drama, save_drama, get_drama, list_dramas, list_dramas_by_genre, list_dramas_for_charts
 from reviews import generate_all_reviews, generate_crowd_reviews, generate_llm_crowd_reviews
 
@@ -51,11 +51,11 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 agents = load_agents()
 critics = [agents[aid] for aid in ("detective", "nana") if aid in agents]
 
-debater = Debater(LLM_BASE_URL, LLM_API_KEY, LLM_MODEL,
-                  judge_base_url=JUDGE_LLM_BASE_URL,
-                  judge_api_key=JUDGE_LLM_API_KEY,
-                  judge_model=JUDGE_LLM_MODEL,
-                  google_api_key=GOOGLE_API_KEY)
+llm = LLMClient(LLM_BASE_URL, LLM_API_KEY, LLM_MODEL,
+                judge_base_url=JUDGE_LLM_BASE_URL,
+                judge_api_key=JUDGE_LLM_API_KEY,
+                judge_model=JUDGE_LLM_MODEL,
+                google_api_key=GOOGLE_API_KEY)
 
 
 # ===================== Helper =====================
@@ -283,7 +283,7 @@ async def api_submit_drama(request: Request):
             log.info("No thumbnail or image_prompt provided, auto-generating prompt for '%s'", title)
         else:
             log.info("No thumbnail_url provided, generating from image_prompt for '%s'...", title)
-        thumbnail_url = await debater.generate_thumbnail(image_prompt)
+        thumbnail_url = await llm.generate_thumbnail(image_prompt)
         if thumbnail_url:
             content.setdefault("thumbnail", {})["image_url"] = thumbnail_url
             log.info("Thumbnail generated for '%s'", title)
@@ -295,7 +295,7 @@ async def api_submit_drama(request: Request):
         import asyncio
         log.info("Generating %d cast photos for '%s'...", len(missing_photos), title)
         photo_tasks = [
-            debater.generate_thumbnail(
+            llm.generate_thumbnail(
                 f"Professional headshot portrait of an actor who looks like {c['actor']}, "
                 f"studio lighting, neutral background, photorealistic, high quality portrait photo"
             )
@@ -310,7 +310,7 @@ async def api_submit_drama(request: Request):
 
     # --- Generate critic reviews (parallel LLM) ---
     log.info("Generating critic reviews for '%s'...", title)
-    critic_reviews = await generate_all_reviews(debater, critics, title, genre, content)
+    critic_reviews = await generate_all_reviews(llm, critics, title, genre, content)
     log.info("Got %d critic reviews for '%s'", len(critic_reviews), title)
 
     # --- Generate crowd reviews ---
@@ -321,7 +321,7 @@ async def api_submit_drama(request: Request):
         no_comment = [r for r in crowd_reviews if not r.get("comment")][:3]
         if no_comment:
             llm_reviews = await generate_llm_crowd_reviews(
-                debater, title, genre,
+                llm, title, genre,
                 [r["name"] for r in no_comment],
                 count=len(no_comment),
             )

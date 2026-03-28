@@ -34,7 +34,7 @@ Respond with ONLY valid JSON, nothing else:
 {{"rating": <1-10>, "commentary": "Your 2-3 sentence review"}}"""
 
 
-async def generate_review(debater, critic: AgentProfile, title: str, genre: str, content: dict) -> dict:
+async def generate_review(llm_client, critic: AgentProfile, title: str, genre: str, content: dict) -> dict:
     """Generate a single critic review via LLM."""
     # Summarize content for the prompt (truncated)
     content_summary = json.dumps(content, indent=2)[:2000]
@@ -51,7 +51,7 @@ async def generate_review(debater, critic: AgentProfile, title: str, genre: str,
     )
 
     try:
-        text = await debater._complete(prompt, max_tokens=512)
+        text = await llm_client._complete(prompt, max_tokens=512)
         # Strip markdown fencing
         cleaned = text.strip()
         if cleaned.startswith("```"):
@@ -77,10 +77,10 @@ async def generate_review(debater, critic: AgentProfile, title: str, genre: str,
         }
 
 
-async def generate_all_reviews(debater, critics: list[AgentProfile], title: str, genre: str, content: dict) -> list[dict]:
+async def generate_all_reviews(llm_client, critics: list[AgentProfile], title: str, genre: str, content: dict) -> list[dict]:
     """Generate reviews from all critics in parallel."""
     import asyncio
-    tasks = [generate_review(debater, c, title, genre, content) for c in critics]
+    tasks = [generate_review(llm_client, c, title, genre, content) for c in critics]
     return list(await asyncio.gather(*tasks))
 
 
@@ -243,7 +243,7 @@ def generate_crowd_reviews(title: str, genre: str, content: dict, count: int = 3
     return crowd_reviews, view_count
 
 
-async def generate_llm_crowd_reviews(debater, title: str, genre: str, reviewer_names: list[str], count: int = 3) -> list[dict]:
+async def generate_llm_crowd_reviews(llm_client, title: str, genre: str, reviewer_names: list[str], count: int = 3) -> list[dict]:
     """Generate a few LLM-powered one-liner reviews from fake reviewers."""
     names_str = ", ".join(reviewer_names[:count])
     prompt = LLM_CROWD_SYSTEM.format(
@@ -254,7 +254,7 @@ async def generate_llm_crowd_reviews(debater, title: str, genre: str, reviewer_n
     )
 
     try:
-        text = await debater._complete(prompt, max_tokens=512)
+        text = await llm_client._complete(prompt, max_tokens=512)
         cleaned = text.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
